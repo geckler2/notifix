@@ -1,8 +1,10 @@
 var xmpp = require('node-xmpp');
 var util = require('util');
 var eventEmitter = require('events').EventEmitter;
-var commands = require('./commands.js');
+var Commander = require('./commands.js');
 var SUPERFEEDR =  'firehoser.superfeedr.com';
+
+var commander = new Commander();
 
 function Component(conf) {
   var that = this;
@@ -50,9 +52,9 @@ Component.prototype.parseMessage = function parseMessage(stanza, cb) {
   var body = stanza.getChild('body');
   var event = stanza.getChild('event', 'http://jabber.org/protocol/pubsub#event');
   if(body && body.getText()) {
-    commands(new xmpp.JID(stanza.from).bare(), body.getText(), that, function(to, message) {
+    commander.run(new xmpp.JID(stanza.from).bare(), body.getText(), that, function(to, message) {
       that.send(to, message)
-    });
+    }, true);
   }
   else if(event && stanza.attrs.from === SUPERFEEDR) {
     var subscriber = decodeURIComponent(stanza.attrs.to.split("@")[0]);
