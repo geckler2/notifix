@@ -1,6 +1,6 @@
 {
   "name": "notifix",
-  "version": "0.0.0-2",
+  "version": "0.0.0-5",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -11,8 +11,9 @@
   "author": "",
   "license": "BSD",
   "dependencies": {
-    "express": "*",
-    "node-xmpp": "*"
+    "express": "3.3.3",
+    "node-xmpp": "0.5.2",
+    "irc": "0.3.6"
   },
   "subdomain": "notifix",
   "engines": {

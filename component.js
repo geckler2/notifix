@@ -1,7 +1,7 @@
 var xmpp = require('node-xmpp');
 var util = require('util');
 var eventEmitter = require('events').EventEmitter;
-
+var commands = require('./commands.js');
 var SUPERFEEDR =  'firehoser.superfeedr.com';
 
 function Component(conf) {
@@ -50,61 +50,9 @@ Component.prototype.parseMessage = function parseMessage(stanza, cb) {
   var body = stanza.getChild('body');
   var event = stanza.getChild('event', 'http://jabber.org/protocol/pubsub#event');
   if(body && body.getText()) {
-    var parsed = body.getText().match(/\/(subscribe|unsubscribe|list|help)(.*)?/);
-    if(parsed && ['subscribe', 'unsubscribe', 'help', 'list'].indexOf(parsed[1]) >= 0) {
-      switch (parsed[1]){
-        case 'subscribe':
-        if(!parsed[2] || !parsed[2].trim()) {
-          return that.send(stanza.attrs.from, 'You need to provide a feed url');
-        }
-        return that.emit('subscribe', parsed[2].trim(), new xmpp.JID(stanza.attrs.from).bare(), function(error, feed) {
-          if(error || !feed) {
-            that.send(stanza.attrs.from, 'We could not subscribe you to ' + parsed[2].trim());
-          }
-          else {
-            that.send(stanza.attrs.from, 'You were successfully subscribed to ' + feed.url);
-          }
-        });
-        break;
-        case 'unsubscribe':
-        if(!parsed[2] || !parsed[2].trim()) {
-          return that.send(stanza.attrs.from, 'You need to provide a feed url');
-        }
-        return that.emit('unsubscribe', parsed[2].trim(), new xmpp.JID(stanza.attrs.from).bare(), function(error, feed) {
-          if(error || !feed) {
-            that.send(stanza.attrs.from, 'We could not unsubscribe you from ' + parsed[2].trim());
-          }
-          else {
-            that.send(stanza.attrs.from, 'You were successfully unsubscribed to ' + feed.url);
-          }
-        });
-        break;
-        case 'list':
-        return that.emit('list', new xmpp.JID(stanza.attrs.from).bare(), parseInt(parsed[2]), function(error, list) {
-          if(error || !list) {
-            that.send(stanza.attrs.from, 'We could not list your subscriptions');
-          }
-          else {
-            if(list.length == 0) {
-              that.send(stanza.attrs.from, 'You are not subscribed to any feed at this point.');
-            }
-            else {
-              that.send(stanza.attrs.from, 'Here is the list of you subscriptions: \n' + list.join('\n'));
-            }
-          }
-        });
-        break;
-        case 'help':
-        return that.send(stanza.attrs.from, 'This is a simple RSS to IM client. The following commands are valid:\n\
-  /susbcribe <feed url> : subscribes to a new feed. You\'ll get the next entries.\n\
-  /unsubscribe <feed url> : subscribes to a new feed. You won\'t get any more entries from it.\n\
-  /list : shows the list of feeds to which you\'re subscribed.\n\
-  /help : shows this message.');
-        break;
-        default : statement;
-      }
-    }
-    return that.send(stanza.attrs.from, 'Please type /help');
+    commands(new xmpp.JID(stanza.from).bare(), body.getText(), that, function(to, message) {
+      that.send(to, message)
+    });
   }
   else if(event && stanza.attrs.from === SUPERFEEDR) {
     var subscriber = decodeURIComponent(stanza.attrs.to.split("@")[0]);
@@ -128,7 +76,7 @@ Component.prototype.parseMessage = function parseMessage(stanza, cb) {
               link = l.attrs.href;
             }
           });
-          return that.send(subscriber, [[feedTitle, entryTitle].join(': '), link].join('\n'));
+          that.emit('notification', subscriber, [[feedTitle, entryTitle].join(': '), link].join('\n'))
         }
       }
   }
@@ -157,6 +105,17 @@ Component.prototype.parseIq = function parseIq(stanza, cb) {
       }
     }
     else if ( this.iqStack[stanza.id].unsubscribe) {
+      switch(stanza.type){
+        case 'result':
+          var subscription = stanza.getChild('pubsub', 'http://jabber.org/protocol/pubsub').getChild('subscription');
+          this.iqStack[stanza.id].subscribe(null, {url: subscription.attrs.node, title: '', status: ''});
+          break;
+        case 'error':
+          this.iqStack[stanza.id].subscribe({}, null);
+          break;
+        default:
+         /* WAT? */
+      }
 
     }
     else if ( this.iqStack[stanza.id].list) {
@@ -182,7 +141,7 @@ Component.prototype.parseIq = function parseIq(stanza, cb) {
 
 Component.prototype.subscribe = function subscribe(feed, from, cb) {
   var id = Math.random().toString(36).substring(7);
-  var jid = [encodeURIComponent(from.bare()), this.notifix.connection.jid.bare()].join("@");
+  var jid = [encodeURIComponent(from), this.notifix.connection.jid.bare()].join("@");
   var stanza = new xmpp.Element('iq', {to: SUPERFEEDR, type:'set', id: id, from: this.notifix.connection.jid.toString()}).
   c('pubsub', {xmlns: 'http://jabber.org/protocol/pubsub'}).
   c('subscribe', {node: feed, jid: jid}).root();
@@ -192,12 +151,11 @@ Component.prototype.subscribe = function subscribe(feed, from, cb) {
 
 Component.prototype.list = function subscribe(from, page, cb) {
   var id = Math.random().toString(36).substring(7);
-  var jid = [encodeURIComponent(from.bare()), this.notifix.connection.jid.bare()].join("@");
+  var jid = [encodeURIComponent(from), this.notifix.connection.jid.bare()].join("@");
   var stanza = new xmpp.Element('iq', {to: SUPERFEEDR, type:'get', id: id, from: this.notifix.connection.jid.toString()}).
   c('pubsub', {xmlns: 'http://jabber.org/protocol/pubsub'}).
   c('subscriptions', {'xmlns:superfeedr': 'http://superfeedr.com/xmpp-pubsub-ext', jid: jid, 'superfeedr:page': page}).root();
   this.iqStack[id] = {list: cb};
-  console.log(stanza.toString())
   this.notifix.connection.send(stanza);
 }
 
