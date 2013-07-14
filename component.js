@@ -109,8 +109,7 @@ Component.prototype.parseIq = function parseIq(stanza, cb) {
     else if ( this.iqStack[stanza.id].unsubscribe) {
       switch(stanza.type){
         case 'result':
-          var subscription = stanza.getChild('pubsub', 'http://jabber.org/protocol/pubsub').getChild('subscription');
-          this.iqStack[stanza.id].subscribe(null, {url: subscription.attrs.node, title: '', status: ''});
+          this.iqStack[stanza.id].unsubscribe(null, {});
           break;
         case 'error':
           this.iqStack[stanza.id].subscribe({}, null);
@@ -150,6 +149,17 @@ Component.prototype.subscribe = function subscribe(feed, from, cb) {
   this.iqStack[id] = {subscribe: cb};
   this.notifix.connection.send(stanza);
 }
+
+Component.prototype.unsubscribe = function unsubscribe(feed, from, cb) {
+  var id = Math.random().toString(36).substring(7);
+  var jid = [encodeURIComponent(from), this.notifix.connection.jid.bare()].join("@");
+  var stanza = new xmpp.Element('iq', {to: SUPERFEEDR, type:'set', id: id, from: this.notifix.connection.jid.toString()}).
+  c('pubsub', {xmlns: 'http://jabber.org/protocol/pubsub'}).
+  c('unsubscribe', {node: feed, jid: jid}).root();
+  this.iqStack[id] = {unsubscribe: cb};
+  this.notifix.connection.send(stanza);
+}
+
 
 Component.prototype.list = function subscribe(from, page, cb) {
   var id = Math.random().toString(36).substring(7);

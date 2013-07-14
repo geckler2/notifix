@@ -37,7 +37,7 @@ function Commander() {
         response(from, 'We could not unsubscribe you from ' + args[2].trim());
       }
       else {
-        response(from, 'You were successfully unsubscribed to ' + feed.url);
+        response(from, 'You were successfully unsubscribed to ' + args[2].trim());
       }
     });
   }, '<feed url> : Unsubscribes from a feed. You won\'t get any more entries from it.');
