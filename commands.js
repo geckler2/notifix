@@ -61,6 +61,35 @@ function Commander() {
 
 }
 
+/* formats the message for a notification, yields the various messages. That's important. */
+Commander.prototype.notify = function notify(notif) {
+  var messages = [];
+  var status = notif.getChild('status', 'http://superfeedr.com/xmpp-pubsub-ext');
+  var feedTitle = status.getChild('title').text();
+  var items = notif.getChild('items');
+  var item = items.getChild('item');
+  if(item) {
+    var entry = item.getChild('entry', 'http://www.w3.org/2005/Atom');
+    if(entry) {
+      var title = entry.getChild('title');
+      if(title) {
+        var entryTitle = title.text();
+      }
+      var link = null;
+      entry.getChildren('link').forEach(function(l) {
+        if(!link) {
+          link = l.attrs.href
+        }
+        else if(l.rel === 'alternate' && l.type === 'text/html') {
+          link = l.attrs.href;
+        }
+      });
+      messages.push([[feedTitle, entryTitle].join(': '), link].join('\n'));
+    }
+  }
+  return messages;
+}
+
 Commander.prototype.register = function register(name, command, help) {
   this.commands[name] = command;
   this.helps.push('+' + name + ' ' + help);

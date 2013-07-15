@@ -58,36 +58,14 @@ Component.prototype.parseMessage = function parseMessage(stanza, cb) {
   }
   else if(event && stanza.attrs.from === SUPERFEEDR) {
     var subscriber = decodeURIComponent(stanza.attrs.to.split("@")[0]);
-    var status = event.getChild('status', 'http://superfeedr.com/xmpp-pubsub-ext');
-    var feedTitle = status.getChild('title').text();
-    var items = event.getChild('items');
-      var item = items.getChild('item');
-      if(item) {
-        var entry = item.getChild('entry', 'http://www.w3.org/2005/Atom');
-        if(entry) {
-          var title = entry.getChild('title');
-          if(title) {
-            var entryTitle = title.text();
-          }
-          var link = null;
-          entry.getChildren('link').forEach(function(l) {
-            if(!link) {
-              link = l.attrs.href
-            }
-            else if(l.rel === 'alternate' && l.type === 'text/html') {
-              link = l.attrs.href;
-            }
-          });
-          that.emit('notification', subscriber, [[feedTitle, entryTitle].join(': '), link].join('\n'))
-        }
-      }
+    that.emit('notification', subscriber, event);
   }
 }
 
-Component.prototype.send = function send(to, message) {
-  if(typeof(message) == 'string') {
+Component.prototype.send = function send(to, notification) {
+  commander.notify(notification).forEach(function(message) {
     this.notifix.connection.send(new xmpp.Element('message', {to: to}).c('body').t(message).root());
-  }
+  });
 }
 
 Component.prototype.parseIq = function parseIq(stanza, cb) {
@@ -160,7 +138,6 @@ Component.prototype.unsubscribe = function unsubscribe(feed, from, cb) {
   this.notifix.connection.send(stanza);
 }
 
-
 Component.prototype.list = function subscribe(from, page, cb) {
   var id = Math.random().toString(36).substring(7);
   var jid = [encodeURIComponent(from), this.notifix.connection.jid.bare()].join("@");
@@ -170,7 +147,5 @@ Component.prototype.list = function subscribe(from, page, cb) {
   this.iqStack[id] = {list: cb};
   this.notifix.connection.send(stanza);
 }
-
-
 
 module.exports = Component;
