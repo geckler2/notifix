@@ -104,11 +104,11 @@ Commander.prototype.notify = function notify(notif) {
         messages.push([[feedTitle, entryTitle].join(': '), link].join('\n'));
       }
     }
-    return messages;
   }
   else {
     console.log('No items. This was likely an error feed. We need to tell the subscriber so that he unsusbcribes!')
   }
+  return messages;
 }
 
 Commander.prototype.register = function register(name, command, help) {
