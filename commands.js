@@ -67,27 +67,32 @@ Commander.prototype.notify = function notify(notif) {
   var status = notif.getChild('status', 'http://superfeedr.com/xmpp-pubsub-ext');
   var feedTitle = status.getChild('title').text();
   var items = notif.getChild('items');
-  var item = items.getChild('item');
-  if(item) {
-    var entry = item.getChild('entry', 'http://www.w3.org/2005/Atom');
-    if(entry) {
-      var title = entry.getChild('title');
-      if(title) {
-        var entryTitle = title.text();
+  if(items) {
+    var item = items.getChild('item');
+    if(item) {
+      var entry = item.getChild('entry', 'http://www.w3.org/2005/Atom');
+      if(entry) {
+        var title = entry.getChild('title');
+        if(title) {
+          var entryTitle = title.text();
+        }
+        var link = null;
+        entry.getChildren('link').forEach(function(l) {
+          if(!link) {
+            link = l.attrs.href
+          }
+          else if(l.rel === 'alternate' && l.type === 'text/html') {
+            link = l.attrs.href;
+          }
+        });
+        messages.push([[feedTitle, entryTitle].join(': '), link].join('\n'));
       }
-      var link = null;
-      entry.getChildren('link').forEach(function(l) {
-        if(!link) {
-          link = l.attrs.href
-        }
-        else if(l.rel === 'alternate' && l.type === 'text/html') {
-          link = l.attrs.href;
-        }
-      });
-      messages.push([[feedTitle, entryTitle].join(': '), link].join('\n'));
     }
+    return messages;
   }
-  return messages;
+  else {
+    console.log('No items. This was likely an error feed. We need to tell the subscriber so that he unsusbcribes!')
+  }
 }
 
 Commander.prototype.register = function register(name, command, help) {

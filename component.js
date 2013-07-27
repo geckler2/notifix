@@ -45,6 +45,7 @@ function Component(conf) {
 
   this.notifix.on('error', function(e) {
     console.error(e);
+    process.exit();
   });
 }
 util.inherits(Component, eventEmitter);
