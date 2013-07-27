@@ -15,7 +15,7 @@ var Irc = function Irc(conf) {
   that.irc = new irc.Client(conf.server, conf.botName, { channels: conf.channels});
 
   that.irc.addListener("error", function(error) {
-    console.log('Error', error)
+    console.log('Error', error);
   });
 
   that.irc.addListener("message", function(from, to, text, message) {

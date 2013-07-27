@@ -14,12 +14,12 @@ function Commander() {
 
   /*Subscribe command*/
   this.register('subscribe', function(from, args, caller, response) {
-    if(!args[2] || !args[2].trim()) {
+    if(!args[0]) {
       return response(from, 'You need to provide a feed url');
     }
-    return caller.emit('subscribe', args[2].trim(), from, function(error, feed) {
+    return caller.emit('subscribe', args[0], from, function(error, feed) {
       if(error || !feed) {
-        response(from, 'We could not subscribe you to ' + args[2].trim());
+        response(from, 'We could not subscribe you to ' + args[0]);
       }
       else {
         response(from, 'You were successfully subscribed to ' + feed.url);
@@ -29,22 +29,22 @@ function Commander() {
 
   /*Unsubscribe command*/
   this.register('unsubscribe', function(from, args, caller, response) {
-    if(!args[2] || !args[2].trim()) {
+    if(!args[0]) {
       return response(from, 'You need to provide a feed url');
     }
-    return caller.emit('unsubscribe', args[2].trim(), from, function(error, feed) {
+    return caller.emit('unsubscribe', args[0], from, function(error, feed) {
       if(error || !feed) {
-        response(from, 'We could not unsubscribe you from ' + args[2].trim());
+        response(from, 'We could not unsubscribe you from ' + args[0]);
       }
       else {
-        response(from, 'You were successfully unsubscribed to ' + args[2].trim());
+        response(from, 'You were successfully unsubscribed to ' + args[0]);
       }
     });
   }, '<feed url> : Unsubscribes from a feed. You won\'t get any more entries from it.');
 
   /* List command */
   this.register('list', function(from, args, caller, response) {
-    return caller.emit('list', from, parseInt(args[2]), function(error, list) {
+    return caller.emit('list', from, parseInt(args[0]), function(error, list) {
       if(error || !list) {
         response(from, 'We could not list your subscriptions');
       }
@@ -58,6 +58,22 @@ function Commander() {
       }
     });
   }, 'Shows the list of feeds to which you\'re subscribed.');
+
+  /*Track command*/
+  this.register('track', function(from, args, caller, response) {
+    if(args.length == 0) {
+      return response(from, 'You need to provide at least one keyword to track (4 characters long minimum)');
+    }
+    var trackFeed = 'http://superfeedr.com/track?include=' + args.map(function(w) { return encodeURIComponent(w)}).join(',');
+    return caller.emit('subscribe', trackFeed, from, function(error, feed) {
+      if(error || !feed) {
+        response(from, 'We could not track ' + args.join("&") + 'for you.');
+      }
+      else {
+        response(from, 'You are now successfully tracking ' + args.join("&"));
+      }
+    });
+  }, '<keywords> : Track any mention of the keywords provided. If multiple keywords are added, only entries matching them all will be notified.');
 
 }
 
@@ -104,7 +120,10 @@ Commander.prototype.run = function run(from, body, caller, response, showHelp) {
   var args = body.match(/\+(\w+)(.*)?/);
   if(args) {
     if(this.commands[args[1]]) {
-      this.commands[args[1]](from, args, caller, response);
+      var arguments = [];
+      if(args[2])
+        arguments = args[2].trim().split(/\W+/);
+      this.commands[args[1]](from, arguments, caller, response);
     }
     else {
       if(showHelp) {

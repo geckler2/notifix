@@ -18,7 +18,6 @@ function Component(conf) {
   });
 
   this.notifix.on('stanza', function(stanza) {
-    console.log(stanza.toString());
     if (stanza.is('message') && stanza.attrs.type !== 'error') {
       that.parseMessage(stanza, function(response) {
         that.notifix.connection.send(response);
