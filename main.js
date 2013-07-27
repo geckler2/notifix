@@ -36,10 +36,10 @@ xmpp.on('notification', function(to, entry) {
   var p = to.split('://');
   switch (p[0]){
     case 'xmpp':
-      xmpp.send(p[1], entry)
+      xmpp.notify(p[1], entry)
     break;
     case 'irc':
-      irc.send(p[1], entry)
+      irc.notify(p[1], entry)
     break;
   }
 });

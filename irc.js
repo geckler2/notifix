@@ -31,10 +31,15 @@ var Irc = function Irc(conf) {
 }
 util.inherits(Irc, eventEmitter);
 
-Irc.prototype.send = function send(to, notification) {
+Irc.prototype.notify = function send(to, notification) {
+  var that = this;
   commander.notify(notification).forEach(function(message) {
-    this.irc.say(to, message);
+    that.send(to, message);
   });
+}
+
+Irc.prototype.send = function send(to, message) {
+  this.irc.say(to, message);
 }
 
 module.exports = Irc;

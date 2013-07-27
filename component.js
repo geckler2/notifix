@@ -13,10 +13,12 @@ function Component(conf) {
   this.iqStack = {};
 
   this.notifix.on('online', function() {
+    console.log('Xmpp Connected');
     that.emit('ready');
   });
 
   this.notifix.on('stanza', function(stanza) {
+    console.log(stanza.toString());
     if (stanza.is('message') && stanza.attrs.type !== 'error') {
       that.parseMessage(stanza, function(response) {
         that.notifix.connection.send(response);
@@ -62,10 +64,15 @@ Component.prototype.parseMessage = function parseMessage(stanza, cb) {
   }
 }
 
-Component.prototype.send = function send(to, notification) {
+Component.prototype.notify = function send(to, notification) {
+  var that = this;
   commander.notify(notification).forEach(function(message) {
-    this.notifix.connection.send(new xmpp.Element('message', {to: to}).c('body').t(message).root());
+    that.send(to, message);
   });
+}
+
+Component.prototype.send = function send(to, message) {
+  this.notifix.connection.send(new xmpp.Element('message', {to: to}).c('body').t(message).root());
 }
 
 Component.prototype.parseIq = function parseIq(stanza, cb) {
