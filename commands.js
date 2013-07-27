@@ -17,6 +17,7 @@ function Commander() {
     if(!args[0]) {
       return response(from, 'You need to provide a feed url');
     }
+
     return caller.emit('subscribe', args[0], from, function(error, feed) {
       if(error || !feed) {
         response(from, 'We could not subscribe you to ' + args[0]);
@@ -30,14 +31,20 @@ function Commander() {
   /*Unsubscribe command*/
   this.register('unsubscribe', function(from, args, caller, response) {
     if(!args[0]) {
-      return response(from, 'You need to provide a feed url');
+      return response(from, 'You need to provide a feed url, or the keyword "last" if you want to unsubscribe from the latest notification.');
     }
-    return caller.emit('unsubscribe', args[0], from, function(error, feed) {
+
+    var feed = args[0];
+    if(args[0] === "last") {
+      feed = caller.last.feed;
+    }
+
+    return caller.emit('unsubscribe', feed, from, function(error, feed) {
       if(error || !feed) {
-        response(from, 'We could not unsubscribe you from ' + args[0]);
+        response(from, 'We could not unsubscribe you from ' + feed);
       }
       else {
-        response(from, 'You were successfully unsubscribed to ' + args[0]);
+        response(from, 'You were successfully unsubscribed to ' + feed);
       }
     });
   }, '<feed url> : Unsubscribes from a feed. You won\'t get any more entries from it.');
@@ -78,9 +85,10 @@ function Commander() {
 }
 
 /* formats the message for a notification, yields the various messages. That's important. */
-Commander.prototype.notify = function notify(notif) {
-  var messages = [];
+Commander.prototype.notify = function notify(notif, cb) {
+  var n = {};
   var status = notif.getChild('status', 'http://superfeedr.com/xmpp-pubsub-ext');
+  n.feed = status.attrs['feed'];
   var feedTitle = status.getChild('title').text();
   var items = notif.getChild('items');
   if(items) {
@@ -101,14 +109,13 @@ Commander.prototype.notify = function notify(notif) {
             link = l.attrs.href;
           }
         });
-        messages.push([[feedTitle, entryTitle].join(': '), link].join('\n'));
+        cb([[feedTitle, entryTitle].join(': '), link].join('\n'), n);
       }
     }
   }
   else {
     console.log('No items. This was likely an error feed. We need to tell the subscriber so that he unsusbcribes!')
   }
-  return messages;
 }
 
 Commander.prototype.register = function register(name, command, help) {
@@ -122,7 +129,7 @@ Commander.prototype.run = function run(from, body, caller, response, showHelp) {
     if(this.commands[args[1]]) {
       var arguments = [];
       if(args[2])
-        arguments = args[2].trim().split(/\W+/);
+        arguments = args[2].trim().split(' ');
       this.commands[args[1]](from, arguments, caller, response);
     }
     else {

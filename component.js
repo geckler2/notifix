@@ -66,7 +66,8 @@ Component.prototype.parseMessage = function parseMessage(stanza, cb) {
 
 Component.prototype.notify = function send(to, notification) {
   var that = this;
-  commander.notify(notification).forEach(function(message) {
+  commander.notify(notification, function(message, n) {
+    that.last = n;
     that.send(to, message);
   });
 }
