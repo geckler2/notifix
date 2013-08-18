@@ -23,7 +23,6 @@ Before deploying, you need to configure the bot.
 * Web interface
   * OPML Import/Export
   * SubToMe support
-* Keep track of last feed for easy unsub
 * Show failures when fetching feeds to allow for unsub
 * Shorten links (optional)
 * Include ads/default subscriptions for monetization
