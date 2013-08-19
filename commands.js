@@ -1,4 +1,24 @@
 var feender = require('feender');
+var Bitly = require('bitly');
+var conf = require('./conf.js');
+
+
+var bitly;
+if(conf.bitly) {
+  bitly = new Bitly(conf.bitly.username, conf.bitly.apiKey);
+}
+
+function shorten(url, cb) {
+  if(bitly) {
+    bitly.shorten(url, function(err, response) {
+      if (err) throw err;
+      cb(response.data.url)
+    });
+  }
+  else {
+    cb(url);
+  }
+}
 
 function Commander() {
   this.commands = {};
@@ -125,7 +145,9 @@ Commander.prototype.notify = function notify(notif, cb) {
             link = l.attrs.href;
           }
         });
-        cb([[feedTitle, entryTitle].join(': '), link].join('\n'), n);
+        shorten(link, function(shortLink) {
+          cb([[feedTitle, entryTitle].join(': '), shortLink].join('\n'), n);
+        });
       }
     }
   }
