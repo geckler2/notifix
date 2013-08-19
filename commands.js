@@ -121,7 +121,7 @@ Commander.prototype.notify = function notify(notif, cb) {
           if(!link) {
             link = l.attrs.href
           }
-          else if(l.rel === 'alternate' && l.type === 'text/html') {
+          if(l.attrs.type === 'text/html' && (l.attrs.rel === 'alternate' || l.attrs.rel === 'canonical')) {
             link = l.attrs.href;
           }
         });
