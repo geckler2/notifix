@@ -73,13 +73,11 @@ function Commander() {
         feed = caller.last.feed;
     }
 
-    console.log(feed)
     if(!feed) {
       return response(from, 'You need to provide a feed url, or the keyword "last" if you want to unsubscribe from the latest notification.');
     }
 
     return caller.emit('unsubscribe', feed, from, function(error, f) {
-      console.log(feed)
       if(error || !feed) {
         response(from, 'We could not unsubscribe you from ' + feed);
       }
