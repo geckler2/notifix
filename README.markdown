@@ -27,4 +27,6 @@ Before deploying, you need to configure the bot.
 * Include ads/default subscriptions for monetization
 * Limit number of feeds per subscriber on default setup to 3 per user?
 * npm install notifix
+* Support &bang
+* Support Hipchat
 
