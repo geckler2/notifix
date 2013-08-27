@@ -24,7 +24,6 @@ Before deploying, you need to configure the bot.
   * OPML Import/Export
   * SubToMe support
 * Show failures when fetching feeds to allow for unsub
-* Shorten links (optional)
 * Include ads/default subscriptions for monetization
 * Limit number of feeds per subscriber on default setup to 3 per user?
 * npm install notifix

@@ -66,13 +66,16 @@ function Commander() {
 
   /*Unsubscribe command*/
   this.register('unsubscribe', function(from, args, caller, response) {
-    if(!args[0]) {
-      return response(from, 'You need to provide a feed url, or the keyword "last" if you want to unsubscribe from the latest notification.');
-    }
-
     var feed = args[0];
     if(args[0] === "last") {
-      feed = caller.last.feed;
+      feed = null;
+      if(caller.last)
+        feed = caller.last.feed;
+    }
+
+    console.log(feed)
+    if(!feed) {
+      return response(from, 'You need to provide a feed url, or the keyword "last" if you want to unsubscribe from the latest notification.');
     }
 
     return caller.emit('unsubscribe', feed, from, function(error, feed) {
