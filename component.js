@@ -156,4 +156,27 @@ Component.prototype.list = function subscribe(from, page, cb) {
   this.notifix.connection.send(stanza);
 }
 
+Component.prototype.listAll = function subscribe(from, cb) {
+  var that = this;
+  var page = 1;
+  var all = [];
+  var listNext = function listNext() {
+    that.list(from, page, function(error, feeds) {
+      if(!error && feeds.length ===0) {
+        cb(null, all);
+      }
+      else if(error) {
+        cb(error, []);
+      }
+      else {
+        all = all.concat(feeds);
+        page += 1;
+        listNext();
+      }
+    });
+  };
+  listNext();
+}
+
+
 module.exports = Component;

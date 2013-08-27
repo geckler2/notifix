@@ -29,4 +29,5 @@ Before deploying, you need to configure the bot.
 * npm install notifix
 * Support &bang
 * Support Hipchat
+* Support Facebook Chat (if possible?)
 
