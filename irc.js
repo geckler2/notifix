@@ -6,7 +6,7 @@ var Commander = require('./commands.js');
 var commander = new Commander();
 
 commander.register('join', function(from, args, caller, response) {
-  caller.irc.join(args[2].trim());
+  caller.irc.join(args[0].trim());
 }, '<room> : Joins the room.');
 
 var Irc = function Irc(conf) {
