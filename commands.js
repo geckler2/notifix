@@ -184,7 +184,7 @@ Commander.prototype.notify = function notify(notif, cb) {
     }
   }
   else {
-    console.log('No items. This was likely an error feed. We need to tell the subscriber so that he unsusbcribes!')
+    console.log('No items. This was likely an error feed. We need to tell the subscriber so that he unsusbcribes from ' + n.feed);
   }
 }
 

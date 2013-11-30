@@ -98,8 +98,6 @@ irc.on('import', function(from, cb, onSubscription) {
   importOPML('irc://' + from, cb, onSubscription);
 });
 
-
-
 xmpp.on('notification', function(to, entry) {
   var p = to.split('://');
   switch (p[0]){
