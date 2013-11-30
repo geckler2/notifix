@@ -1,7 +1,7 @@
 var irc = require("irc");
 var util = require('util');
 var eventEmitter = require('events').EventEmitter;
-var Commander = require('./commands.js');
+var Commander = require('../commands/commands.js');
 
 var commander = new Commander();
 

@@ -25,8 +25,11 @@ Before deploying, you need to configure the bot.
 * Show failures when fetching feeds to allow for unsub
 * Include ads/default subscriptions for monetization
 * Limit number of feeds per subscriber on default setup to 3 per user?
+* Add simple bloomfilter (memory backed!) to avoid dupes.
 * npm install notifix
 * Support &bang
 * Support Hipchat
 * Support Facebook Chat (if possible?)
+* Support all other chat platforms
+* Deploy on own server
 

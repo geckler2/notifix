@@ -1,7 +1,7 @@
 var xmpp = require('node-xmpp');
 var util = require('util');
 var eventEmitter = require('events').EventEmitter;
-var Commander = require('./commands.js');
+var Commander = require('../commands/commands.js');
 var SUPERFEEDR =  'firehoser.superfeedr.com';
 
 var commander = new Commander();

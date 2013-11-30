@@ -1,14 +1,14 @@
 var OpmlParser = require('opmlparser');
 var url = require('url');
 var fs = require('fs');
-var Component = require('./component.js');
-var Irc = require('./irc.js');
+var Component = require(__dirname + '/channels/component.js');
+var Irc = require(__dirname + '/channels/irc.js');
 var conf = require('./conf.js');
 var app = require('./web.js');
 
 var xmpp = new Component(conf.xmpp);
 var irc = new Irc(conf.irc);
-var opml = require('./opml.js');
+var opml = require(__dirname + '/utils/opml.js');
 
 xmpp.on('subscribe', function(feed, from, cb) {
   xmpp.subscribe(feed, 'xmpp://' + from, cb)
