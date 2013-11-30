@@ -21,7 +21,6 @@ Before deploying, you need to configure the bot.
 ## TODO
 
 * Web interface
-  * OPML Import/Export
   * SubToMe support
 * Show failures when fetching feeds to allow for unsub
 * Include ads/default subscriptions for monetization

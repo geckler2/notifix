@@ -130,8 +130,26 @@ function Commander() {
         response(from, ['Get your feeds from', exportURL, 'but beware that this url will destroy in 30 seconds'].join(' '));
       }
     });
-    return response(from, message);
   }, 'Export your subscriptions as an OPML file from the website');
+
+  /* Import Command */
+  this.register('import', function(from, args, caller, response) {
+    return caller.emit('import', from, function(error, importURL) {
+      if(error || !importURL) {
+        response(from, 'We could not prepare the import for you');
+      }
+      else {
+        response(from, ['Import your feeds at', importURL, 'but beware that this url will destroy in 30 seconds.'].join(' '));
+      }
+    }, function(error, feed) {
+      if(error || !feed) {
+        response(from, 'We could not subscribe you to ' + args[0]);
+      }
+      else {
+        response(from, 'You were successfully subscribed to ' + feed.url);
+      }
+    });
+  }, 'Import an OPML file');
 }
 
 /* formats the message for a notification, yields the various messages. That's important. */
