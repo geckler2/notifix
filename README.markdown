@@ -1,6 +1,6 @@
 # Notifix
 
-Notifix is a RSS -> IM bot powered by Superfeedr. It's 'push' in a way that the content of the feeds is pushed straight to your IM client.
+Notifix is a RSS -> IM bot powered by Superfeedrr. It's 'push' in a way that the content of the feeds is pushed straight to your IM client.
 
 Currently, both XMPP and IRC are supported.
 There is a community server runing at http://notifix.ouvre-boite.com but you should run your own to avoid limitations, ads and all kinds of other problems. See below for instructions.
